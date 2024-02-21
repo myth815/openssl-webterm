@@ -101,3 +101,5 @@ Any contributions are greatly appreciated. If you have a suggestion that would m
 
 [Apache License v2](http://www.apache.org/licenses/)
 This mainly requests to keep the name of the original authors and give according credit to them if you change or redistribute the sources.
+
+myth815'version is auto deploy to dockerHub
