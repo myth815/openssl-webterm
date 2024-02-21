@@ -33,7 +33,7 @@ jobs:
           myth815/openssl-webterm:${{ github.sha }}
 
     - name: Update Docker Hub Description
-      if: github.ref == 'refs/heads/main'
+      if: github.ref == 'refs/heads/master'
       env:
         DOCKERHUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
         DOCKERHUB_PASSWORD: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
