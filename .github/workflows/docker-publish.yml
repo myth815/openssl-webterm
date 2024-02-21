@@ -1,0 +1,49 @@
+name: Build and Publish Docker
+
+on:
+  push:
+    branches: [ main ]
+    tags:
+      - 'v*'
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check Out Repo
+      uses: actions/checkout@v2
+
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+
+    - name: Build and Push Docker image
+      uses: docker/build-push-action@v2
+      with:
+        context: .
+        file: ./Dockerfile
+        push: true
+        tags: |
+          myth815/openssl-webterm:latest
+          myth815/openssl-webterm:${{ github.sha }}
+
+    - name: Update Docker Hub Description
+      if: github.ref == 'refs/heads/main'
+      env:
+        DOCKERHUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+        DOCKERHUB_PASSWORD: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+        DOCKERHUB_REPOSITORY: myth815/openssl-webterm
+        README_FILEPATH: './README.md'
+      run: |
+        README_CONTENT=$(cat $README_FILEPATH)
+        echo "$README_CONTENT" | \
+        curl -X PATCH \
+             -H "Content-Type: application/json" \
+             --data '{"full_description": "'"$(echo "$README_CONTENT" | jq -aRs .)"'"}' \
+             -u $DOCKERHUB_USERNAME:$DOCKERHUB_PASSWORD \
+             "https://hub.docker.com/v2/repositories/$DOCKERHUB_REPOSITORY/"
